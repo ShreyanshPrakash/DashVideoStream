@@ -1,2 +1,2 @@
 # DashVideoStream
-Reaact app to stream DASH video stream using Shaka player
+React app to stream DASH video stream using Shaka player
