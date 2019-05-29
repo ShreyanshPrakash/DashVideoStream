@@ -1,2 +1,2 @@
 # DashVideoStream
-Reqact app to stream DASH videos stream using Shaka player
+Reaact app to stream DASH video stream using Shaka player
