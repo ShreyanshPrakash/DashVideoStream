@@ -164,3 +164,19 @@ ffmpeg -i video_160x90_250k.mp4 -i video_320x180_500k.mp4 -i video_640x360_750k.
 
 
 ffmpeg -i sample.mkv -c:v libvpx-vp9 -keyint_min 150 -g 150 -tile-columns 4 -frame-parallel 1  -f webm -dash 1 -an -vf scale=160:90 -b:v 250k -dash 1 video_160x90_250k.webm -an -vf scale=640:360 -b:v 1000k -dash 1 video_640x360_1000k.webm -an -vf scale=1280:720 -b:v 1500k -dash 1 video_1280x720_1500k.webm
+
+
+ffmpeg -f webm_dash_manifest -i video_160x90_250k.webm -f webm_dash_manifest -i video_640x360_1000k.webm -f webm_dash_manifest -i video_1280x720_1500k.webm -f webm_dash_manifest -i audio.mp4 -c copy -map 0 -map 1 -map 2 -map 3 -f webm_dash_manifest -adaptation_sets id=0,streams=0,1,2 id=1,streams=3 my_video_manifest.mpd
+
+
+ffmpeg -y -i "sample.mp4" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts keyint=25:min-keyint=25:no-scenecut -crf 23 -maxrate 800k -bufsize 2000k -pix_fmt yuv420p -vf "scale=-2:720" -f mp4  "video_1280x720.mp4"
+
+ffmpeg -y -i "sample.mp4" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts keyint=25:min-keyint=25:no-scenecut -crf 23 -maxrate 800k -bufsize 2000k -pix_fmt yuv420p -vf "scale=-2:360" -f mp4  "video_640x360.mp4"
+
+ffmpeg -y -i "sample.mp4" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts keyint=25:min-keyint=25:no-scenecut -crf 23 -maxrate 800k -bufsize 2000k -pix_fmt yuv420p -vf "scale=-2:180" -f mp4  "video_320x180.mp4"
+
+
+MP4Box -dash 2000 -rap -frag-rap -bs-switching no -profile dashavc264:live video_1280x720.mp4 video_640x360.mp4 video_320x180.mp4 video-audio.mp4 -out video.mpd
+
+
+ffmpeg -i "sample.mp4" -ss 00:00:00 -vframes 1  -qscale:v 10 -n -f image2 - | cjpeg -progressive -quality 75 -outfile "samplePoster".jpg
