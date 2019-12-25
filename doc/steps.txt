@@ -1,38 +1,182 @@
-1.
-Convert files
+ffmpeg -i input.mp4 -codec copy -f dash -min_seg_duration 30 -use_template 1 -use_timeline 1 -init_seg_name '$RepresentationID$-init.m4s' -media_seg_name '$RepresentationID$-$Time$.m4s' output.mpd
 
-: ffmpeg -i sample.mkv sample.mp4    // change the container/format
 
-: ffmpeg -i sample.mp4 -c:v libvpx-vp9 -keyint_min 150 -g 150 -tile-columns 4 -frame-parallel 1 -f mp4 -dash 1 -an -vf scale=160:90 -b:v 250k -dash 1 video_160x90_250k.mp4 -an -vf scale=320:180 -b:v 500k -dash 1 video_320x180_500k.mp4 -an -vf scale=640:360 -b:v 750k -dash 1 video_640x360_750k.mp4 -an -vf scale=640:360 -b:v 1000k -dash 1 video_640x360_1000k.mp4 -an -vf scale=1280:720 -b:v 1500k -dash 1 video_1280x720_1500k.mp4
+/// command works but manul work required.
+https://medium.com/@mayur_solanki/how-to-create-mpd-or-m3u8-video-file-from-server-using-ffmpeg-97e9e1fbf6a3
 
-2.
-Segmentation
+
+
+
+1. For 240x320
+ffmpeg -i big_bunny.mp4 -c:a aac -strict experimental -c:v libx264 -s 240x320 -aspect 16:9 -f hls -hls_list_size 1000000 -hls_time 2 240_out.m3u8
+2. For 360x640
+ffmpeg -i big_bunny.mp4 -c:a aac -strict experimental -c:v libx264 -s 360x640 -aspect 16:9 -f hls -hls_list_size 1000000 -hls_time 2 360_out.m3u8
+3. For 480x800
+ffmpeg -i big_bunny.mp4 -c:a aac -strict experimental -c:v libx264 -s 480x800 -aspect 16:9 -f hls -hls_list_size 1000000 -hls_time 2 480_out.m3u8
+4. For 540x960
+ffmpeg -i big_bunny.mp4 -c:a aac -strict experimental -c:v libx264 -s 480x800 -aspect 16:9 -f hls -hls_list_size 1000000 -hls_time 2 540_out.m3u8
+
+
+
+
+ffmpeg -i sample.mkv -an -c:v libx264 -x264opts 'keyint=24:min-keyint=24:no-scenecut' -b:v 5300k -maxrate 5300k -bufsize 2650k -vf video-1080.mp4
+ffmpeg -i sample.mkv -an -c:v libx264 -x264opts 'keyint=24:min-keyint=24:no-scenecut' -b:v 2400k -maxrate 2400k -bufsize 1200k -vf 'scale=-1:720' video-720.mp4
+ffmpeg -i sample.mkv -an -c:v libx264 -x264opts 'keyint=24:min-keyint=24:no-scenecut' -b:v 1060k -maxrate 1060k -bufsize 530k -vf 'scale=-1:478' video-480.mp4
+ffmpeg -i sample.mkv -an -c:v libx264 -x264opts 'keyint=24:min-keyint=24:no-scenecut' -b:v 600k -maxrate 600k -bufsize 300k -vf 'scale=-1:360' video-360.mp4
+ffmpeg -i sample.mkv -an -c:v libx264 -x264opts 'keyint=24:min-keyint=24:no-scenecut' -b:v 260k -maxrate 260k -bufsize 130k -vf 'scale=-1:242' video-240.mp4
+
+
+
+ffmpeg -i sample.mkv -c:v libvpx-vp9 -keyint_min 150 \
+-g 150 -tile-columns 4 -frame-parallel 1  -f webm -dash 1 \
+-an -vf scale=160:90 -b:v 250k -dash 1 video_160x90_250k.webm \
+-an -vf scale=320:180 -b:v 500k -dash 1 video_320x180_500k.webm \
+-an -vf scale=640:360 -b:v 750k -dash 1 video_640x360_750k.webm \
+-an -vf scale=640:360 -b:v 1000k -dash 1 video_640x360_1000k.webm \
+-an -vf scale=1280:720 -b:v 1500k -dash 1 video_1280x720_1500k.webm
+
+
+
+ffmpeg -y -i "${fe}" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts 'keyint=25:min-keyint=25:no-scenecut' -crf 22 -maxrate 5000k -bufsize 12000k -pix_fmt yuv420p -f mp4 "${f}_5000.mp4"
+    ffmpeg -y -i "${fe}" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts 'keyint=25:min-keyint=25:no-scenecut' -crf 23 -maxrate 3000k -bufsize 6000k -pix_fmt yuv420p -f mp4  "${f}_3000.mp4"
+    ffmpeg -y -i "${fe}" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts 'keyint=25:min-keyint=25:no-scenecut' -crf 23 -maxrate 1500k -bufsize 3000k -pix_fmt yuv420p -f mp4   "${f}_1500.mp4"
+    ffmpeg -y -i "${fe}" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts 'keyint=25:min-keyint=25:no-scenecut' -crf 23 -maxrate 800k -bufsize 2000k -pix_fmt yuv420p -vf "scale=-2:720" -f mp4  "${f}_800.mp4"
+    ffmpeg -y -i "${fe}" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts 'keyint=25:min-keyint=25:no-scenecut' -crf 23 -maxrate 400k -bufsize 1000k -pix_fmt yuv420p -vf "scale=-2:540" -f mp4  "${f}_400.mp4"
+    # static file for ios and old browsers and mobile safari
+    ffmpeg -y -i "${fe}" -preset slow -tune film -movflags +faststart -vsync passthrough -write_tmcd 0 -c:a aac -b:a 160k -c:v libx264  -crf 23 -maxrate 2000k -bufsize 4000k -pix_fmt yuv420p -f mp4 "${f}/${f}.mp4"
+
+
+
+
+ffmpeg -i sample.mkv -an -c:v libx264 -x264opts keyint=30:min-keyint=30:no-scenecut -b:v 2400k -maxrate 2400k -bufsize 1200k -vf scale=-1:720 video-720.mkv
+
+ffmpeg -i sample.mkv -an -c:v libx264 -x264opts keyint=30:min-keyint=30:no-scenecut -b:v 1060k -maxrate 1060k -bufsize 530k -vf scale=-1:480 video-480.mkv
+
+
+MP4Box -dash 1000 -rap -frag-rap -profile onDemand -out video.mpd video-1080.mkv video-720.mkv video-480.mkv video-audio.mkv
+
+MP4Box -dash 1000 -out video.mpd video-720.mp4 video-480.mp4 video-audio.mp4
+
+
+// MP4Box for dash
+https://gpac.wp.imt.fr/mp4box/dash/
+
+https://bitmovin.com/mp4box-dash-content-generation-x264/    // well explained each flag
+
+
+MP4Box -dash 1000 -frag 1000 -rap -segment-name segment_ output_2400k.mp4
+
+MP4Box -dash 1000 -dash-profile live -segment-name output-seg video-720.mp4 video-480.mp4 video-audio.mp4
+
+
+ffmpeg -i test.mkv -c:v libx264 -r 24 -g 72 -an output.mp4
+// use above after encoding...run once to get better file then create mpd.
+
+
+https://blog.streamroot.io/encode-multi-bitrate-videos-mpeg-dash-mse-based-media-players-22/
+// good documentation mp4box
+
+
+
+
+ffmpeg -i sample.mp4 -c:v libvpx-vp9 -keyint_min 150 -g 150 -tile-columns 4 -frame-parallel 1 -f mp4 -dash 1 -an -vf scale=160:90 -b:v 250k -dash 1 video_160x90_250k.mp4 -an -vf scale=320:180 -b:v 500k -dash 1 video_320x180_500k.mp4 -an -vf scale=640:360 -b:v 750k -dash 1 video_640x360_750k.mp4 -an -vf scale=640:360 -b:v 1000k -dash 1 video_640x360_1000k.mp4 -an -vf scale=1280:720 -b:v 1500k -dash 1 video_1280x720_1500k.mp4
+
+ffmpeg -i sample.webm -c:v libvpx-vp9 -keyint_min 150 -g 150 -tile-columns 4 -frame-parallel 1 -f webm -dash 1 -an -vf scale=160:90 -b:v 250k -dash 1 video_160x90_250k.webm -an -vf scale=320:180 -b:v 500k -dash 1 video_320x180_500k.webm -an -vf scale=640:360 -b:v 750k -dash 1 video_640x360_750k.webm -an -vf scale=640:360 -b:v 1000k -dash 1 video_640x360_1000k.webm -an -vf scale=1280:720 -b:v 1500k -dash 1 video_1280x720_1500k.webm
+
+
+
+
+ffmpeg -f webm_dash_manifest -i video_160x90_250k.mp4 -f webm_dash_manifest -i video_320x180_500k.mp4 -f webm_dash_manifest -i video_640x360_750k.mp4 -f webm_dash_manifest -i video_1280x720_1500k.mp4 -f webm_dash_manifest -i video-audio.mp4 -c copy -map 0 -map 1 -map 2 -map 3 -map 4 -f webm_dash_manifest -adaptation_sets id=0,streams=0,1,2,3 id=1,streams=4 my_video_manifest.mpd
+
+
+ffmpeg -i video_160x90_250k.mp4 -i video_320x180_500k.mp4 -i video_640x360_750k.mp4 -i video_1280x720_1500k.mp4 -i video-audio.mp4 -c copy -map 0 -map 1 -map 2 -map 3 -map 4 -adaptation_sets id=0,streams=0,1,2,3 id=1,streams=4 my_video_manifest.mpd
+
 
 ffmpeg -i video_1280x720_1500k.mp4 -c copy -map 0 -adaptation_sets id=0,streams=0 my_video_manifest.mpd
-// take a input file and segment that and also generate a mpd file for it.
+// this is good when the user selects a resolution....then u would wanna send the video of that quality only...no adaptive just segmentation.
 
 
 
 
-WORKING :
+////////////////////////////////////////////
+https://rybakov.com/blog/mpeg-dash/
 
-// For audio, mp4 works fine
-ffmpeg -y -i "${fe}" -c:a aac -b:a 192k -vn "${f}_audio.m4a"
+// conevrt files
 
-// creating resolutions
+ffmpeg -y -i "input.mov" -c:a aac -b:a 192k -vn "output_audio.m4a"
+
+    ffmpeg -y -i "input.mov" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts 'keyint=25:min-keyint=25:no-scenecut' -crf 22  -maxrate 5000k -bufsize 10000k -pix_fmt yuv420p -f mp4 "output_5000.mp4"
+
+    ffmpeg -y -i "input.mov" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts 'keyint=25:min-keyint=25:no-scenecut' -crf 23  -maxrate 2000k -bufsize 4000k -pix_fmt yuv420p -f mp4 "output_2000.mp4"
+
+
+//
+
+do
+  fe=$(basename "$f") # fullname of the file
+  f="${fe%.*}" # name without extension
+
+  if [ ! -d "${f}" ]; then #if directory does not exist, convert
+    echo "Converting \"$f\" to multi-bitrate video in MPEG-DASH"
+
+    mkdir "${f}"
+
+    ffmpeg -y -i "${fe}" -c:a aac -b:a 192k -vn "${f}_audio.m4a"
+
+    ffmpeg -y -i "${fe}" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts 'keyint=25:min-keyint=25:no-scenecut' -crf 22 -maxrate 5000k -bufsize 12000k -pix_fmt yuv420p -f mp4 "${f}_5000.mp4"
+    ffmpeg -y -i "${fe}" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts 'keyint=25:min-keyint=25:no-scenecut' -crf 23 -maxrate 3000k -bufsize 6000k -pix_fmt yuv420p -f mp4  "${f}_3000.mp4"
+    ffmpeg -y -i "${fe}" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts 'keyint=25:min-keyint=25:no-scenecut' -crf 23 -maxrate 1500k -bufsize 3000k -pix_fmt yuv420p -f mp4   "${f}_1500.mp4"
+    ffmpeg -y -i "${fe}" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts 'keyint=25:min-keyint=25:no-scenecut' -crf 23 -maxrate 800k -bufsize 2000k -pix_fmt yuv420p -vf "scale=-2:720" -f mp4  "${f}_800.mp4"
+    ffmpeg -y -i "${fe}" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts 'keyint=25:min-keyint=25:no-scenecut' -crf 23 -maxrate 400k -bufsize 1000k -pix_fmt yuv420p -vf "scale=-2:540" -f mp4  "${f}_400.mp4"
+    # static file for ios and old browsers and mobile safari
+    ffmpeg -y -i "${fe}" -preset slow -tune film -movflags +faststart -vsync passthrough -write_tmcd 0 -c:a aac -b:a 160k -c:v libx264  -crf 23 -maxrate 2000k -bufsize 4000k -pix_fmt yuv420p -f mp4 "${f}/${f}.mp4"
+
+   
+    rm -f ffmpeg*log*
+    # if audio stream does not exist, ignore it
+    if [ -e "${f}_audio.m4a" ]; then
+        MP4Box -dash-strict 2000 -rap -frag-rap  -bs-switching no -profile "dashavc264:live" "${f}_5000.mp4" "${f}_3000.mp4" "${f}_1500.mp4" "${f}_800.mp4" "${f}_400.mp4" "${f}_audio.m4a" -out "${f}/${f}.mpd"
+        rm "${f}_5000.mp4" "${f}_3000.mp4" "${f}_1500.mp4" "${f}_800.mp4" "${f}_400.mp4" "${f}_audio.m4a"
+    else
+        MP4Box -dash-strict 2000 -rap -frag-rap  -bs-switching no -profile "dashavc264:live" "${f}_5000.mp4" "${f}_3000.mp4" "${f}_1500.mp4" "${f}_800.mp4" "${f}_400.mp4" -out "${f}/${f}.mpd"
+        rm "${f}_5000.mp4" "${f}_3000.mp4" "${f}_1500.mp4" "${f}_800.mp4" "${f}_400.mp4" 
+    fi
+    # create a jpg for poster. Use imagemagick or just save the frame directly from ffmpeg is you don't have cjpeg installed.
+    ffmpeg -i "${fe}" -ss 00:00:00 -vframes 1  -qscale:v 10 -n -f image2 - | cjpeg -progressive -quality 75 -outfile "${f}"/"${f}".jpg
+
+    fi
+
+done
+
+
+
+///////////////////////////////////////////
+
+
+
+MP4Box -dash 1000 -rap -frag-rap -profile dashavc264:live video_1280x720_1500k.mp4 video_640x360_750k.mp4 sample-audio.m4a -out video.mpd
+
+ffmpeg -i video_1280x720_1500k.mp4 -c copy -map 0 -adaptation_sets id=0,streams=0 my_video_manifest.mpd
+
+
+ffmpeg -i video_160x90_250k.mp4 -i video_320x180_500k.mp4 -i video_640x360_750k.mp4 -i video_1280x720_1500k.mp4 -i video-audio.mp4 -c copy -map 0 -map 1 -map 2 -map 3 -map 4 -adaptation_sets id=0,streams=0,1,2,3 id=1,streams=4 my_video_manifest.mpd
+
+
+
+ffmpeg -i sample.mkv -c:v libvpx-vp9 -keyint_min 150 -g 150 -tile-columns 4 -frame-parallel 1  -f webm -dash 1 -an -vf scale=160:90 -b:v 250k -dash 1 video_160x90_250k.webm -an -vf scale=640:360 -b:v 1000k -dash 1 video_640x360_1000k.webm -an -vf scale=1280:720 -b:v 1500k -dash 1 video_1280x720_1500k.webm
+
+
+ffmpeg -f webm_dash_manifest -i video_160x90_250k.webm -f webm_dash_manifest -i video_640x360_1000k.webm -f webm_dash_manifest -i video_1280x720_1500k.webm -f webm_dash_manifest -i audio.mp4 -c copy -map 0 -map 1 -map 2 -map 3 -f webm_dash_manifest -adaptation_sets id=0,streams=0,1,2 id=1,streams=3 my_video_manifest.mpd
+
+
 ffmpeg -y -i "sample.mp4" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts keyint=25:min-keyint=25:no-scenecut -crf 23 -maxrate 800k -bufsize 2000k -pix_fmt yuv420p -vf "scale=-2:720" -f mp4  "video_1280x720.mp4"
 
 ffmpeg -y -i "sample.mp4" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts keyint=25:min-keyint=25:no-scenecut -crf 23 -maxrate 800k -bufsize 2000k -pix_fmt yuv420p -vf "scale=-2:360" -f mp4  "video_640x360.mp4"
 
 ffmpeg -y -i "sample.mp4" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts keyint=25:min-keyint=25:no-scenecut -crf 23 -maxrate 800k -bufsize 2000k -pix_fmt yuv420p -vf "scale=-2:180" -f mp4  "video_320x180.mp4"
 
-// single command to do all above....good for one process.Above is good for parallel execution.
-ffmpeg -y -i "sample.mp4" -preset slow -tune film -vsync passthrough -write_tmcd 0 -an -c:v libx264 -x264opts keyint=25:min-keyint=25:no-scenecut -crf 23 -maxrate 800k -bufsize 2000k -pix_fmt yuv420p -vf "scale=-2:720" -f mp4  "video_1280x720.mp4" -an -c:v libx264 -x264opts keyint=25:min-keyint=25:no-scenecut -crf 23 -maxrate 800k -bufsize 2000k -pix_fmt yuv420p -vf "scale=-2:360" -f mp4  "video_640x360.mp4" -an -c:v libx264 -x264opts keyint=25:min-keyint=25:no-scenecut -crf 23 -maxrate 800k -bufsize 2000k -pix_fmt yuv420p -vf "scale=-2:180" -f mp4  "video_320x180.mp4"
 
-// segmenting and mpd creation
 MP4Box -dash 2000 -rap -frag-rap -bs-switching no -profile dashavc264:live video_1280x720.mp4 video_640x360.mp4 video_320x180.mp4 video-audio.mp4 -out video.mpd
 
-// Thumbnail/ poster
-ffmpeg -i "sample.mp4" -ss 00:00:00 -vframes 1  -qscale:v 10 -n -f image2 - | cjpeg -progressive -quality 75 -outfile "samplePoster".jpg
 
-ffmpeg -i "sample.mp4" -ss 00:00:00 -vframes 1  -qscale:v 10 -n -f image2 "samplePoster".jpg
+ffmpeg -i "sample.mp4" -ss 00:00:00 -vframes 1  -qscale:v 10 -n -f image2 - | cjpeg -progressive -quality 75 -outfile "samplePoster".jpg
