@@ -2,8 +2,9 @@ import React, { Component } from 'react'
 import shaka from 'shaka-player'
 
 // var manifestUri = '//storage.googleapis.com/shaka-demo-assets/angel-one/dash.mpd';
-var manifestUri = 'https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd';
+// var manifestUri = 'https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd';
 // var manifestUri = 'https://bitdash-a.akamaihd.net/content/MI201109210084_1/m3u8s/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.m3u8';
+var manifestUri = "http://localhost:4200/mpd/video.mpd";
 
 class Main extends Component {
 
@@ -11,6 +12,7 @@ class Main extends Component {
 	  	// Install built-in polyfills to patch browser incompatibilities.
 		shaka.polyfill.installAll();
 
+		console.log( shaka );
 		// Check to see if the browser supports the basic APIs Shaka needs.
 		if (shaka.Player.isBrowserSupported()) {
 		// Everything looks good!
@@ -55,7 +57,7 @@ class Main extends Component {
 	    	<div>
 		    	<h2>Player</h2>
 		    	<video ref="video"
-	           	width="640"
+	           	width="640" autoPlay
 	       			poster="//shaka-player-demo.appspot.com/assets/poster.jpg"
 	           	controls autoPlay>
 	       		</video>
